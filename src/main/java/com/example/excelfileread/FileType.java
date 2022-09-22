@@ -1,7 +1,6 @@
 package com.example.excelfileread;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Workbook;
+
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
@@ -10,7 +9,7 @@ import java.io.IOException;
 
 public class FileType {
 
-    public static Workbook getWorkbook(String filePath) {
+    public static XSSFWorkbook getWorkbook(String filePath) {
 
         FileInputStream fis = null;
 
@@ -21,11 +20,11 @@ public class FileType {
             throw new RuntimeException(e.getMessage(), e);
         }
 
-        Workbook wb = null;
+        XSSFWorkbook wb = null;
 
         if(filePath.toUpperCase().endsWith("")){
             try{
-                wb = new HSSFWorkbook(fis);
+                wb = new XSSFWorkbook(fis);
             } catch (IOException e) {
                 throw new RuntimeException(e.getMessage(), e);
             }

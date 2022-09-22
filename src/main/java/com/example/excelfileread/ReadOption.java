@@ -1,7 +1,9 @@
 package com.example.excelfileread;
 
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class ReadOption {
 
@@ -35,8 +37,7 @@ public class ReadOption {
         this.outputColumns = temp;
     }
 
-    public void setOutputColumns(String outputColumns) {
-
+    public void setOutputColumns(String ... outputColumns) {
         if (this.outputColumns == null) {
             this.outputColumns = new ArrayList<String>();
         }

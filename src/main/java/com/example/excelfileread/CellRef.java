@@ -5,7 +5,7 @@ import org.apache.poi.ss.usermodel.Cell;
 
 public class CellRef {
 
-    public static String getname(Cell cell, int cellIndex){
+    public static String getName(Cell cell, int cellIndex){
         int cellNum = 0;
         if(cell != null){
             cellNum = cell.getColumnIndex();
