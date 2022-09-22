@@ -86,15 +86,12 @@ public class ExcelRead {
         System.out.println(ro);
 
         for(Map<String,String> map : result){
-            String clNm = map.get("C");
-            String sido = map.get("H");
-            String gugun = map.get("I");
-            String dong = map.get("J");
-            // 지번 주소
-            String jibun = map.get("K");
-
-            //호수
-            String hosu = map.get("N");
+            String cliNm = map.get("C");    // 고객명
+            String sido = map.get("H");     // 시/도
+            String gugun = map.get("I");    // 구/군
+            String dong = map.get("J");     // 동
+            String jibun = map.get("K");    // 지번주소
+            String hosu = map.get("N");     // 호수
 
             StringBuffer dongjibun = new StringBuffer();
             dongjibun.append(sido+" "+gugun+" "+dong);
@@ -145,7 +142,7 @@ public class ExcelRead {
 
 
 
-                log.info("고객명: " + clNm + " | " + "n차 통합코드: " + hCode + jibunNm + hosuNm);
+                log.info("고객명: " + cliNm + " | " + "n차 통합코드: " + hCode + jibunNm + hosuNm);
 
             } catch (Exception e) {
                 log.error("잘못된 접근입니다",e);
