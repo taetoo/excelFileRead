@@ -72,17 +72,16 @@ public class ExcelRead {
 
     public static void main(String[] args) {
 
-        ReadOption ro = new ReadOption();
+        ReadOption gasExcel = new ReadOption();
 //        ro.setFilePath("/Users/taehyeonkim/Desktop/incuvers/통합고지 가스전기데이터/가스 계약자 DB.xlsx");
-        ro.setFilePath("/Users/taehyeonkim/Desktop/무제 2.xlsx");
-        // C : 고객명 , N : 호수 , O : 지번주소, H : 시/도, I : 구/군, J : 동
-        ro.setOutputColumns("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X");
-        ro.setStartRow(2);
+        gasExcel.setFilePath("/Users/taehyeonkim/Desktop/무제 2.xlsx");
+        gasExcel.setOutputColumns("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X");
+        gasExcel.setStartRow(2);
 
 
+        List<Map<String,String>> result = ExcelRead.read(gasExcel);
 
-        List<Map<String,String>> result = ExcelRead.read(ro);
-
+        // 행안부 주소 검색 Api 로 뽑아온 행정동코드 저장할 변수
         String hCode = "";
 
         for(Map<String,String> map : result){
@@ -112,54 +111,49 @@ public class ExcelRead {
             String phoneNm = map.get("W");      // 전화번호
             String interCode = map.get("X");    // 통합코드
 
-            // 건물 동의 값이 null 인 경우 & 숫자가 아닌 경우
-            if(buildDong == null || buildDong == ""){
-                buildDong = "0000";
-            } else if(buildDong != "[0-9]") {
-                buildDong = "0000";
-            }
-
-
             // 숫자 빼고 모두 제거
             String match = "[^0-9]";
             jibun = jibun.replaceAll(match, "");
             buildDong = buildDong.replaceAll(match, "");
             hosu = hosu.replaceAll(match, "");
-            // 호수가 숫자가 아닌경우
-            if(hosu == "[^0-9]"){
-                hosu = "0000";
+
+            // 건물 동의 값이 null 인 경우
+            if(buildDong.equals("")){
+                buildDong = "0";
+            }
+            // 호수가 null 인 경우
+            if(hosu.equals("")){
+                hosu = "0";
             }
 
-
-            int intJibun = Integer.parseInt(jibun);                       // int 로 형변환
+            // int 로 형변환 이유는 동과 호수 변수 앞에 0 정수로 채우기 위한 작업(통합코드 생성시 규칙)
+            int intJibun = Integer.parseInt(jibun);
             int intDongNm = Integer.parseInt(buildDong);
             int intHosu = Integer.parseInt(hosu);
 
-            String jibunNm = String.format("%06d",intJibun);              // 최종 지번 숫자만(6자리)
+            String jibunNm = String.format("%06d",intJibun);           // 최종 지번 숫자만(6자리)
             String dongNm = String.format("%04d",intDongNm);           // 최종 동 숫자만(4자리)
-            String hosuNm = String.format("%04d",intHosu);           // 최종 동 숫자만(4자리)
+            String hosuNm = String.format("%04d",intHosu);             // 최종 동 숫자만(4자리)
 
-
-            StringBuffer dongjibun = new StringBuffer();
-            dongjibun.append(sido+" "+gugun+" "+dong);
-
-            String addressName = dongjibun.toString();
+            // 주소 검색 Api 를 사용하기 위해 각각 시/도 + 구/군 + 동 엑셀 레코드 붙여서 검색
+            StringBuilder dongJuso = new StringBuilder();
+            dongJuso.append(sido);
+            dongJuso.append(gugun);
+            dongJuso.append(dong);
 
             try {
                 // 주소 검색, URLEncoder는 URL을 인코딩 하기위해 사용하는 클래스
-                String keyword = URLEncoder.encode(addressName, "UTF-8");
+                String keyword = URLEncoder.encode(dongJuso.toString(), "UTF-8");
 
                 URL url = new URL("https://business.juso.go.kr/addrlink/addrLinkApi.do?currentPage=1&countPerPage=10&keyword="
                         + keyword + "&confmKey=devU01TX0FVVEgyMDIyMDkwMjE2MTYzOTExMjk0NDM=&resultType=json");
 
-                BufferedReader bf;
+                BufferedReader bufferedReader;
 
 
-                bf = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
+                bufferedReader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
 
-                String res = bf.readLine();
-
-//              System.out.println(res);
+                String res = bufferedReader.readLine();
 
                 // String 값을 JSON 형태로 추출하기 위해 사용하는 라이브러리
                 JSONParser jsonParser = new JSONParser();
@@ -172,20 +166,23 @@ public class ExcelRead {
                 // 컬렉션 추출 주소정보 뽑을 준비 완료!
                 JSONObject jusoColl = (JSONObject) jusoArray.get(0);
 
-                // 행정동 코드
-                hCode = jusoColl.get("admCd").toString();              // 행정동코드 10자리
 
+                hCode = jusoColl.get("admCd").toString();              // 행정동코드 10자리
 
             }
 
             catch (Exception e) {
                 log.error("잘못된 접근입니다",e);
             }
-
             // n차 통합 코드
-            String integratedCode = hCode + jibunNm + dongNm + hosuNm;
+            StringBuilder integratedCode = new StringBuilder();
+            integratedCode.append(hCode);
+            integratedCode.append(jibunNm);
+            integratedCode.append(dongNm);
+            integratedCode.append(hosuNm);
 
-            System.out.println("고객명: "+ cliNm + " | n차 통합코드: " + integratedCode);
+
+            log.info("고객명: "+ cliNm + " | n차 통합코드: " + integratedCode);
         }
     }
 
