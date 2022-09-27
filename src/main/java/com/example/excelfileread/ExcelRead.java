@@ -74,7 +74,7 @@ public class ExcelRead {
 
         ReadOption gasExcel = new ReadOption();
 //        ro.setFilePath("/Users/taehyeonkim/Desktop/incuvers/통합고지 가스전기데이터/가스 계약자 DB.xlsx");
-        gasExcel.setFilePath("/Users/taehyeonkim/Desktop/무제 2.xlsx");
+        gasExcel.setFilePath("/Users/taehyeonkim/Desktop/gas.xlsx");
         gasExcel.setOutputColumns("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X");
         gasExcel.setStartRow(2);
 
@@ -128,12 +128,12 @@ public class ExcelRead {
 
             // int 로 형변환 이유는 동과 호수 변수 앞에 0 정수로 채우기 위한 작업(통합코드 생성시 규칙)
             int intJibun = Integer.parseInt(jibun);
-            int intDongNm = Integer.parseInt(buildDong);
-            int intHosu = Integer.parseInt(hosu);
+            int intDongHosu = Integer.parseInt(buildDong+hosu);     // 동 + 호수; 형태가 101동 101호의 경우
+                                                                       //          -> 00101101
 
             String jibunNm = String.format("%06d",intJibun);           // 최종 지번 숫자만(6자리)
-            String dongNm = String.format("%04d",intDongNm);           // 최종 동 숫자만(4자리)
-            String hosuNm = String.format("%04d",intHosu);             // 최종 동 숫자만(4자리)
+            String dongHosu = String.format("%08d",intDongHosu);       // 최종 동호수 숫자만(8자리)
+
 
             // 주소 검색 Api 를 사용하기 위해 각각 시/도 + 구/군 + 동 엑셀 레코드 붙여서 검색
             StringBuilder dongJuso = new StringBuilder();
@@ -178,11 +178,9 @@ public class ExcelRead {
             StringBuilder integratedCode = new StringBuilder();
             integratedCode.append(hCode);
             integratedCode.append(jibunNm);
-            integratedCode.append(dongNm);
-            integratedCode.append(hosuNm);
+            integratedCode.append(dongHosu);
 
-
-            log.info("고객명: "+ cliNm + " | n차 통합코드: " + integratedCode);
+          log.info("고객명: "+ cliNm + " | n차 통합코드: " + integratedCode);
         }
     }
 
