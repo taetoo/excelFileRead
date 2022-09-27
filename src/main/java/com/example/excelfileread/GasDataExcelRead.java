@@ -18,7 +18,7 @@ import java.net.URLEncoder;
 import java.util.*;
 
 @Slf4j
-public class ExcelRead {
+public class GasDataExcelRead {
 
     public static List<Map<String, String>> read(ReadOption readOption) {
 
@@ -79,7 +79,7 @@ public class ExcelRead {
         gasExcel.setStartRow(2);
 
 
-        List<Map<String,String>> result = ExcelRead.read(gasExcel);
+        List<Map<String,String>> result = GasDataExcelRead.read(gasExcel);
 
         // 행안부 주소 검색 Api 로 뽑아온 행정동코드 저장할 변수
         String hCode = "";
@@ -88,7 +88,7 @@ public class ExcelRead {
 
             String bpNm = map.get("A");         // BP번호
             String caNm = map.get("B");         // CA번호
-            String cliNm = map.get("C");        // 고객명
+            String gasCliNm = map.get("C");     // 고객명
             String buildNm = map.get("D");      // 건물번호
             String houseNm = map.get("E");      // 세대번호
             String houseType = map.get("F");    // 세대유형
@@ -180,7 +180,7 @@ public class ExcelRead {
             integratedCode.append(jibunNm);
             integratedCode.append(dongHosu);
 
-          log.info("고객명: "+ cliNm + " | n차 통합코드: " + integratedCode);
+          log.info("고객명: "+ gasCliNm + " | n차 통합코드: " + integratedCode);
         }
     }
 
