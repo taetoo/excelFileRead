@@ -74,7 +74,7 @@ public class ElecDataExcelRead {
 
         ReadOption elecExcel = new ReadOption();
 //        ro.setFilePath("/Users/taehyeonkim/Desktop/incuvers/통합고지 가스전기데이터/가스 계약자 DB.xlsx");
-        elecExcel.setFilePath("/Users/taehyeonkim/Desktop/incuvers/통합고지 가스전기데이터/전기계약자 DB.xlsx");
+        elecExcel.setFilePath("/Users/taehyeonkim/Desktop/electrical.xlsx");
         elecExcel.setOutputColumns("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P");
         elecExcel.setStartRow(3);
 
@@ -109,38 +109,8 @@ public class ElecDataExcelRead {
             String billDetailAdd = map.get("O");        // 상세주소
             String billDoroAdd = map.get("P");          // 도로명주소
 
-
-//            // 숫자 빼고 모두 제거
-//            String match = "[^0-9]";
-//            jibun = jibun.replaceAll(match, "");
-//            buildDong = buildDong.replaceAll(match, "");
-//            hosu = hosu.replaceAll(match, "");
-//
-//            // 건물 동의 값이 null 인 경우
-//            if(buildDong.equals("")){
-//                buildDong = "0";
-//            }
-//            // 호수가 null 인 경우
-//            if(hosu.equals("")){
-//                hosu = "0";
-//            }
-//
-//            // int 로 형변환 이유는 동과 호수 변수 앞에 0 정수로 채우기 위한 작업(통합코드 생성시 규칙)
-//            int intJibun = Integer.parseInt(jibun);
-//            int intDongHosu = Integer.parseInt(buildDong+hosu);     // 동 + 호수; 형태가 101동 101호의 경우
-//            //          -> 00101101
-//
-//            String jibunNm = String.format("%06d",intJibun);           // 최종 지번 숫자만(6자리)
-//            String dongHosu = String.format("%08d",intDongHosu);       // 최종 동호수 숫자만(8자리)
-//
-//
-//            // 주소 검색 Api 를 사용하기 위해 각각 시/도 + 구/군 + 동 엑셀 레코드 붙여서 검색
-//            StringBuilder dongJuso = new StringBuilder();
-//            dongJuso.append(sido);
-//            dongJuso.append(gugun);
-//            dongJuso.append(dong);
-
             try {
+
                 // 주소 검색, URLEncoder는 URL을 인코딩 하기위해 사용하는 클래스
                 String keyword = URLEncoder.encode(useAddress, "UTF-8");
 
@@ -153,7 +123,6 @@ public class ElecDataExcelRead {
                 bufferedReader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
 
                 String res = bufferedReader.readLine();
-                System.out.println(res);
 
                 // String 값을 JSON 형태로 추출하기 위해 사용하는 라이브러리
                 JSONParser jsonParser = new JSONParser();
@@ -163,20 +132,48 @@ public class ElecDataExcelRead {
                 // 리스트 추출
                 JSONArray jusoArray = (JSONArray)addResult.get("juso");
 
-                // 컬렉션 추출 주소정보 뽑을 준비 완료!
-                JSONObject jusoColl = (JSONObject) jusoArray.get(0);
 
+                // IndexOutOfBoundsException: index:0, Size: 0 관련 에러 발생으로 인한 조건문
+                if (jusoArray.size()!=0){
 
-                hCode = jusoColl.get("admCd").toString();              // 행정동코드 10자리
-                System.out.println(hCode);
+                    // 컬렉션 추출 주소정보 뽑을 준비 완료!
+                    JSONObject jusoColl = (JSONObject) jusoArray.get(0);
+
+                    hCode = jusoColl.get("admCd").toString();              // 행정동코드 10자리
+                }
+
             }
 
             catch (Exception e) {
                 log.error("잘못된 접근입니다",e);
             }
+
+//            // 숫자 빼고 모두 제거
+            String match = "[^0-9]";
+            useAddress = useAddress.replaceAll(match, "");
+            useDetailAdd = useDetailAdd.replaceAll(match, "");
+
+//
+//            // 건물 동의 값이 null 인 경우
+            if(useDetailAdd.equals("")){
+                useDetailAdd = "0";
+            }
+
+//
+//            // int 로 형변환 이유는 동과 호수 변수 앞에 0 정수로 채우기 위한 작업(통합코드 생성시 규칙)
+            int intJibun = Integer.parseInt(useAddress);
+            int intDongHosu = Integer.parseInt(useDetailAdd);
+
+//
+            String jibunNm = String.format("%06d",intJibun);           // 최종 지번 숫자만(6자리)
+            String dongHosu = String.format("%08d",intDongHosu);       // 최종 동호수 숫자만(8자리)
+
+
             // n차 통합 코드
             StringBuilder integratedCode = new StringBuilder();
             integratedCode.append(hCode);
+            integratedCode.append(jibunNm);
+            integratedCode.append(dongHosu);
 
 
             log.info("고객명: "+ elecCliNm + " | n차 통합코드: " + integratedCode);

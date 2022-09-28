@@ -163,11 +163,15 @@ public class GasDataExcelRead {
                 // 리스트 추출
                 JSONArray jusoArray = (JSONArray)addResult.get("juso");
 
-                // 컬렉션 추출 주소정보 뽑을 준비 완료!
-                JSONObject jusoColl = (JSONObject) jusoArray.get(0);
+                if (jusoArray.size()!=0){
+
+                    // 컬렉션 추출 주소정보 뽑을 준비 완료!
+                    JSONObject jusoColl = (JSONObject) jusoArray.get(0);
 
 
-                hCode = jusoColl.get("admCd").toString();              // 행정동코드 10자리
+                    hCode = jusoColl.get("admCd").toString();              // 행정동코드 10자리
+
+                }
 
             }
 
@@ -179,6 +183,7 @@ public class GasDataExcelRead {
             integratedCode.append(hCode);
             integratedCode.append(jibunNm);
             integratedCode.append(dongHosu);
+
 
           log.info("고객명: "+ gasCliNm + " | n차 통합코드: " + integratedCode);
         }
